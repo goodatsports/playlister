@@ -4,6 +4,7 @@ import random
 
 #   NOTES
 # HIP HOP id_genre = 151
+# SPECIALTY = 153
 # row 1 = file path
 # row 14 = track time
 # row 20 = artist
@@ -18,25 +19,27 @@ genre = sys.argv[1]
 totalLength = 0;
 
 # Genres in RadioDJ are organized by an int value called id_genre, I have no idea what
-# criteria is used to determine a genre's id, these were found by querying different genres in MySQL
-if genre == "HipHop" or genre =="hiphop":
+# criteria is used to determine a genre's id
+if genre.lower() == "hiphop":
     id_genre = 151
+elif genre.lower() == "specialty":
+    id_genre = 153
 else:
-    id_genre = 0
+    sys.exit("Invalid genre entered!")
+
 
 # Connect to database
 db = MySQLdb.connect(host="localhost",
                      user= "root",
-
                      passwd="******",
-                     db="*******")
+                     db="******")
 # Create cursor object
 cursor = db.cursor()
-
 
 # Query database, grab a random assortment of songs within genre passed in sysarg
 cursor.execute("SELECT * FROM songs WHERE id_genre = %s ORDER BY RAND() LIMIT 20" % id_genre )
 
+# Save returned songs retrieved by cursor object
 songPool = cursor.fetchall()
 
 # Create empty .m3u file and write header
@@ -62,6 +65,6 @@ while(totalLength + 120 < 3600):
     i += 1
     totalLength += int(track_time)
 
-# Save file and exit database
+# Save file and close database connection
 targetFile.close()
 db.close()
